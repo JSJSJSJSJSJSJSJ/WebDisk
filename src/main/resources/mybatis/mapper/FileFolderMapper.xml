@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.joe.webdisk.repository.FileFolderMapper">
+
+    <!--映射结果集-->
+    <resultMap id="BaseResultMap" type="com.joe.webdisk.entity.FileFolder">
+        <id column="file_folder_id" jdbcType="INTEGER" property="fileFolderId" />
+        <result column="file_folder_name" jdbcType="VARCHAR" property="fileFolderName" />
+        <result column="parent_folder_id" jdbcType="INTEGER" property="parentFolderId" />
+        <result column="file_store_id" jdbcType="INTEGER" property="fileStoreId" />
+    </resultMap>
+
+    <!--所有属性【文件夹id，文件夹名称，父文件夹id，文件仓库id】-->
+    <sql id="Folder_Column">
+        file_folder_id, file_folder_name, parent_folder_id, file_store_id, time
+    </sql>
+
+    <!--文件的所有属性sql-->
+    <sql id="File_Column">
+        my_file_id, my_file_name, file_store_id, my_file_path, download_time, upload_time, parent_folder_id
+    </sql>
+
+    <!--添加属性sql-->
+    <sql id="Base_Insert_Key_List">
+        <if test="fileFolderName != null">
+            file_folder_name,
+        </if>
+        <if test="parentFolderId != null">
+            parent_folder_id,
+        </if>
+        <if test="fileStoreId != null">
+            file_store_id,
+        </if>
+        <if test="time != null">
+            time,
+        </if>
+    </sql>
+
+    <!--添加值sql-->
+    <sql id="Base_Insert_Value_List">
+        <if test="fileFolderName != null">
+            #{fileFolderName,jdbcType=VARCHAR},
+        </if>
+        <if test="parentFolderId != null">
+            #{parentFolderId,jdbcType=INTEGER},
+        </if>
+        <if test="fileStoreId != null">
+            #{fileStoreId,jdbcType=INTEGER},
+        </if>
+        <if test="time != null">
+            #{time},
+        </if>
+    </sql>
+
+    <!--修改sql-->
+    <sql id="Base_Update_List">
+        <if test="fileFolderName != null">
+            file_folder_name = #{fileFolderName,jdbcType=VARCHAR},
+        </if>
+        <if test="parentFolderId != null">
+            parent_folder_id = #{parentFolderId,jdbcType=INTEGER},
+        </if>
+        <if test="fileStoreId != null">
+            file_store_id = #{fileStoreId,jdbcType=INTEGER},
+        </if>
+    </sql>
+
+    <!--通过【文件仓库ID】获取个人仓库文件夹数-->
+    <select id="getFileFolderCountByFileStoreId" resultType="java.lang.Integer">
+        select count(*) from file_folder
+        where file_store_id = #{fileStoreId}
+    </select>
+
+    <!--根据仓库Id获得所有文件夹-->
+    <select id="getFileFolderByFileStoreId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Folder_Column" />
+        from file_folder
+        where file_store_id = #{fileStoreId,jdbcType=INTEGER};
+    </select>
+
+    <!--根据仓库Id获得仓库根目录下的所有文件夹-->
+    <select id="getRootFoldersByFileStoreId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Folder_Column" />
+        from file_folder
+        where file_store_id = #{fileStoreId,jdbcType=INTEGER} and parent_folder_id = 0;
+    </select>
+
+    <!--根据文件夹的id获取文件夹-->
+    <select id="getFileFolderByFileFolderId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Folder_Column" />
+        from file_folder
+        where file_folder_id = #{fileFolderId,jdbcType=INTEGER}
+    </select>
+
+    <!--根据父文件夹的id获取文件夹-->
+    <select id="getFileFoldersByParentFolderId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Folder_Column" />
+        from file_folder
+        where parent_folder_id = #{parentFolderId,jdbcType=INTEGER}
+    </select>
+
+    <!--根据文件夹的id获取文件夹下面的文件-->
+    <select id="getFileByFileFolder" parameterType="java.lang.Integer" resultType="com.joe.webdisk.entity.MyFile">
+        select
+        <include refid="File_Column"></include>
+        from my_file
+        where parent_folder_id = #{parentFolderId,jdbcType=INTEGER}
+    </select>
+
+    <!--增加文件夹-->
+    <insert id="addFileFolder" keyColumn="file_folder_id" keyProperty="fileFolderId" parameterType="com.joe.webdisk.entity.FileFolder" useGeneratedKeys="true">
+        insert into file_folder
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <include refid="Base_Insert_Key_List"/>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <include refid="Base_Insert_Value_List"/>
+        </trim>
+    </insert>
+
+    <!--重命名文件夹-->
+    <update id="updateFileFolderByFileFolderId" parameterType="com.joe.webdisk.entity.FileFolder">
+        update file_folder
+        set file_folder_name = #{fileFolderName,jdbcType=VARCHAR}
+        where file_folder_id = #{fileFolderId,jdbcType=INTEGER}
+    </update>
+
+    <!--根据文件夹的id删除文件夹-->
+    <delete id="deleteFileFolderById" parameterType="java.lang.Integer">
+        delete from file_folder
+        where file_folder_id = #{fileFolderId,jdbcType=INTEGER}
+    </delete>
+
+    <!--根据父文件夹的id删除文件夹-->
+    <delete id="deleteFileFolderByParentFolderId" parameterType="java.lang.Integer">
+        delete from file_folder
+        where parent_folder_id = #{parentFolderId,jdbcType=INTEGER}
+    </delete>
+
+    <!--根据仓库的id删除文件夹-->
+    <delete id="deleteFileFolderByFileStoreId" parameterType="java.lang.Integer">
+        delete from file_folder
+        where file_store_id = #{fileStoreId,jdbcType=INTEGER}
+    </delete>
+
+</mapper>

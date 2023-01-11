@@ -1,0 +1,93 @@
+# 配置项目名和session的过期时间
+server:
+  servlet:
+    context-path: /joe
+    session:
+      timeout: 60m
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  tomcat:
+    uri-encoding: UTF-8
+# 日志的存放位置与级别
+logging:
+  file:
+    name: log/joe.log
+  level:
+    root: info
+# 配置Mybatis
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+# 配置FTP服务器
+ftp:
+  ip:
+  port:
+  username:
+  password:
+  remote-path: /
+spring:
+  # 配置邮件任务
+  mail:
+    username:
+    password:
+    host: smtp.139.com
+    port: 465
+    protocol: smtps
+  # 配置文件上传相关
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  # 配置ThymeLeaf模板缓存
+  thymeleaf:
+    cache: false
+  # 静态资源的访问路径
+  mvc:
+    static-path-pattern: /**
+  # 配置数据源
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/webpan?serverTimezone=Asia/Shanghai&useAffectedRows=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    #通过这句配置将druid连接池引入到我们的配置中，spring会尽可能判断类型是什么，然后根据情况去匹配驱动类。
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 30000
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的filters，stat监控统计、log4j日志记录、wall用于防御sql注入
+      filters: stat,wall,log4j
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+      # 合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+      # WebStatFilter配置，用于采集web-jdbc关联监控的数据
+      web-stat-filter:
+        enabled: true #是否启用StatFilter默认值false
+        url-pattern: /* #表示过滤所有请求
+        exclusions: /druid/*,*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico #设置哪些请求进行过滤排除掉，从而不进行统计
+      # StatViewServlet配置，用于展示Druid的统计信息
+      stat-view-servlet:
+        enabled: true #是否启用StatViewServlet默认值false
+        url-pattern: /druid/*
+        reset-enable: true
+        login-username: joe
+        login-password: joe

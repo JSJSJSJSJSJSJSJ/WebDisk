@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.joe.webdisk.repository.FileStoreMapper">
+
+    <sql id="commonKey">file_store_id,user_id,current_size,max_size,permission</sql>
+
+    <!--新增fileStore-->
+    <insert id="addFileStore" keyProperty="fileStoreId" useGeneratedKeys="true">
+        insert into file_store(user_id) values (#{userId})
+    </insert>
+
+    <!--根据用户id获取文件仓库-->
+    <select id="getFileStoreByUserId" resultType="com.joe.webdisk.entity.FileStore">
+        select <include refid="commonKey"/>
+        from file_store
+        where user_id = #{userId}
+    </select>
+
+    <!--根据文件仓库id获取文件仓库-->
+    <select id="getFileStoreByFileStoreId" resultType="com.joe.webdisk.entity.FileStore">
+        select <include refid="commonKey"/>
+        from file_store
+        where file_store_id = #{fileStoreId}
+    </select>
+
+    <!--仓库当前容量扩容-->
+    <update id="addSize">
+        update file_store set current_size = current_size + #{size} where file_store_id = #{id}
+    </update>
+
+    <!--仓库当前容量减容-->
+    <update id="subSize">
+        update file_store set current_size = current_size - #{size} where file_store_id = #{id}
+    </update>
+
+    <!--更新仓库-->
+    <update id="updatePermission">
+        update file_store set permission = #{permission},max_size = #{size} where user_id = #{id}
+    </update>
+
+    <!--通过主键删除仓库-->
+    <delete id="deleteById">
+        delete from file_store where file_store_id = #{id}
+    </delete>
+
+</mapper>
